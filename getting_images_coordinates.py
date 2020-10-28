@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
 
+# global variables
 image_path = './camera_position/WIN_20201027_09_48_05_Pro.jpg'
+image_coordinates = []
 
 def click_event(event, x, y, flags, params): 
       
@@ -10,7 +12,7 @@ def click_event(event, x, y, flags, params):
   
         # displaying the coordinates on the Shell 
         print(x, ' ', y)
- 
+        images_coordinates = image_coordinates.append([x, y])
         # displaying the coordinates 
         # on the image window 
         font = cv2.FONT_HERSHEY_SIMPLEX 

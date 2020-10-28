@@ -2,7 +2,6 @@
 
 import numpy as np
 import cv2
-import glob
 
 # parameters 
 writeValues = True
@@ -144,12 +143,6 @@ def calculate_accuracy(worldPoints,imagePoints):
         print("---- XYZ\n")
         print(XYZ)
 
-        if calculatefromCam == False:
-            cXYZ = cameraXYZ.calculate_XYZ(imagePoints[i,0],imagePoints[i,1])
-            print("camXYZ")
-            print(cXYZ)
-
-
     s_mean, s_std = np.mean(s_describe), np.std(s_describe)
 
     print(">>>>>>>>>>>>>>>>>>>>> S RESULTS\n")
@@ -168,20 +161,20 @@ def calculate_accuracy(worldPoints,imagePoints):
 if __name__ == '__main__':
 
     # load camera calibration
-cam_mtx,dist,roi,newcam_mtx,inverse_newcam_mtx = load_parameters(savedir, display) 
+    cam_mtx,dist,roi,newcam_mtx,inverse_newcam_mtx = load_parameters(savedir, display)
 
-# load center points from New Camera matrix
-cx, cy = get_image_center(savedir)
-print("cx:{0}".format(cx) + "cy:{0}".format(cy))
+    # load center points from New Camera matrix
+    cx, cy = get_image_center(savedir)
+    print("cx:{0}".format(cx) + "cy:{0}".format(cy))
 
-# world center + 9 world points
+    # world center + 9 world points
 
-total_points_used = 10
+    total_points_used = 10
 
-X_center = -1.5
-Y_center = 5.5
-Z_center = -85.0
-world_points = np.array([[X_center,Y_center,Z_center],
+    X_center = -1.5
+    Y_center = 5.5
+    Z_center = -85.0
+    world_points = np.array([[X_center,Y_center,Z_center],
                        [0.0, -22.0, -86.0], 
                        [0.0, 0.0, -86.0],
                        [0.0, 22.0, -86.0],  
@@ -193,10 +186,10 @@ world_points = np.array([[X_center,Y_center,Z_center],
                        [-15.0, 22.0,-86.0]],dtype=np.float32)
 
 
-# MANUALLY INPUT THE DETECTED IMAGE COORDINATES HERE
+    # MANUALLY INPUT THE DETECTED IMAGE COORDINATES HERE
 
-# [u,v] center + 9 Image points
-image_points=np.array([[cx,cy],
+    # [u,v] center + 9 Image points
+    image_points=np.array([[cx,cy],
                        [189, 372],
                        [574,362],
                        [950,347],
@@ -207,23 +200,23 @@ image_points=np.array([[cx,cy],
                        [564,107],
                        [937,98]], dtype=np.float32)
 
-# For Real World Points, calculate Z from d*
-world_points = calculate_z_total_points (world_points, X_center, Y_center)
+    # For Real World Points, calculate Z from d*
+    world_points = calculate_z_total_points (world_points, X_center, Y_center)
 
 
-# Get rotatio n and translation_vector from the parameters of the camera, given a set of 2D and 3D points
-print("solvePNP")
-(success, rotation_vector, translation_vector) = cv2.solvePnP(world_points, image_points, newcam_mtx, dist, flags=cv2.SOLVEPNP_ITERATIVE)
+    # Get rotatio n and translation_vector from the parameters of the camera, given a set of 2D and 3D points
+    print("solvePNP")
+    (success, rotation_vector, translation_vector) = cv2.solvePnP(world_points, image_points, newcam_mtx, dist, flags=cv2.SOLVEPNP_ITERATIVE)
 
-if success:
-    print("Sucess:", success)
-    print ("Rotation Vector:\n {0}".format(rotation_vector))
-    print ("Translation Vector:\n {0}".format(translation_vector))
+    if success:
+        print("Sucess:", success)
+        print ("Rotation Vector:\n {0}".format(rotation_vector))
+        print ("Translation Vector:\n {0}".format(translation_vector))
     
-    if writeValues: 
-        save_parameters(savedir,rotation_vector, translation_vector,newcam_mtx)
+        if writeValues:
+            save_parameters(savedir,rotation_vector, translation_vector,newcam_mtx)
     
 
-# Check the accuracy now
-mean, std = calculate_accuracy(world_points, image_points)
-print("Mean:{0}".format(mean) + "Std:{0}".format(std))
+    # Check the accuracy now
+    mean, std = calculate_accuracy(world_points, image_points)
+    print("Mean:{0}".format(mean) + "Std:{0}".format(std))
