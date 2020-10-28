@@ -158,6 +158,58 @@ def calculate_accuracy(worldPoints,imagePoints):
         
     return s_mean, s_std
 
+
+def from_3d_to_2d(image_path, world_coordinates, draw):
+    im = cv2.imread(image_path);
+    size = im.shape
+
+    # load camera calibration
+    savedir = "camera_data/"
+    dist = np.load(savedir + 'dist.npy')
+    newcam_mtx = np.load(savedir + 'newcam_mtx.npy')
+    rotation_vector = np.load(savedir + 'rotation_vector.npy')
+    translation_vector = np.load(savedir + 'translation_vector.npy')
+
+    # Expected this format -> np.array([(0.0, 0.0, 30)])
+    world_coordinates = np.array([world_coordinates])
+    (new_point2D, jacobian) = cv2.projectPoints(world_coordinates, rotation_vector, translation_vector, newcam_mtx,
+                                                dist)
+    print("New_point2D:", new_point2D)
+
+    if draw:
+        cv2.circle(im, (int(new_point2D[0][0][0]), int(new_point2D[0][0][1])), 5, (255, 0, 0), -1)
+        # Display image
+        cv2.imshow("Test", im)
+        # cv2.imwrite(image_path, im)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+    return new_point2D
+
+def from_2d_to_3d(image_coordinates):
+    # load camera calibration
+    savedir = "camera_data/"
+    cam_mtx, dist, roi, newcam_mtx, inverse_newcam_mtx = load_parameters(savedir, display)
+    R_mtx = np.load(savedir + 'R_mtx.npy')
+    inverse_R_mtx = np.linalg.inv(R_mtx)
+    s_arr = np.load(savedir + 's_arr.npy')
+    scalingfactor = s_arr[0]
+
+    # Expected this format -> np.array([(0.0, 0.0, 30)])
+    u, v = image_coordinates
+
+    # Solve: From Image Pixels, find World Points
+    uv_1 = np.array([[u, v, 1]], dtype=np.float32)
+    uv_1 = uv_1.T
+    suv_1 = scalingfactor * uv_1
+    xyz_c = inverse_newcam_mtx.dot(suv_1)
+    xyz_c = xyz_c - translation_vector
+    XYZ = inverse_R_mtx.dot(xyz_c)
+
+    return XYZ
+
+
+
 if __name__ == '__main__':
 
     # load camera calibration
@@ -220,3 +272,14 @@ if __name__ == '__main__':
     # Check the accuracy now
     mean, std = calculate_accuracy(world_points, image_points)
     print("Mean:{0}".format(mean) + "Std:{0}".format(std))
+
+    draw = True
+    image_path = 'camera_position/WIN_20201027_09_48_05_Pro.jpg'
+    # world_coordinate = (17.51,17.83,-84.253)
+    world_coordinate = (10.0, 22.0, 0.0)
+    new_point2D = from_3d_to_2d(image_path, world_coordinate, draw)
+
+    # image_coordinates = [946.65573404,517.46556152]
+    image_coordinates = [190.0, 373.0]
+    new_point3D = from_2d_to_3d(image_coordinates)
+    print(new_point3D)
