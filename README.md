@@ -1,3 +1,3 @@
-# camera_calibration
+# Blob_detector
 
-Python code for calibrating an usb_camera and obtain coordinates
+Python code for camera calibration and Blob detection 
