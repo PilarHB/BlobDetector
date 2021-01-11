@@ -6,11 +6,13 @@ import os
 import glob
 import yaml
 
+# File only for camera_calibration, only need to do it once before using the rest of the programn.
+
 # workingdir="/home/pi/Desktop/Captures/"
 savedir = 'camera_data/'
 
 # Defining the dimensions of checkerboard
-CHECKERBOARD = (6,5)
+CHECKERBOARD = (6, 5)
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 # Creating vector to store vectors of 3D points for each checkerboard image

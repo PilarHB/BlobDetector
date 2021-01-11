@@ -25,14 +25,14 @@ def click_event(event, x, y, flags, params):
 img = cv2.imread(image_path, 1) 
   
 # displaying the image 
-cv2.imshow('image', img) 
-  
-# setting mouse hadler for the image 
+cv2.imshow('image', img)
+
+# setting mouse handler for the image
 # and calling the click_event() function 
 cv2.setMouseCallback('image', click_event)
-  
+
 # wait for a key to be pressed to exit 
 cv2.waitKey(0) 
-  
-# close the window 
+
+# close the window
 cv2.destroyAllWindows()
