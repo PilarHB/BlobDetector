@@ -11,6 +11,7 @@ class PerspectiveCalibration:
         self.savedir = os.path.join(current_path, '../camera_data/')
         self.display = True
         self.writeValues = True
+        self.draw = True
 
     # Get the center of the image cx and cy
     def get_image_center(self):
@@ -157,7 +158,7 @@ class PerspectiveCalibration:
 
         return s_mean, s_std
 
-    def from_3d_to_2d(self, image, world_coordinates, draw):
+    def from_3d_to_2d(self, image, world_coordinates):
         # load camera calibration
         dist = np.load(self.savedir + 'dist.npy')
         newcam_mtx = np.load(self.savedir + 'newcam_mtx.npy')
@@ -170,11 +171,10 @@ class PerspectiveCalibration:
                                                     dist)
         print("New_point2D:", new_point2D)
 
-        if draw:
+        if self.draw:
             cv2.circle(image, (int(new_point2D[0][0][0]), int(new_point2D[0][0][1])), 5, (255, 0, 0), -1)
             # Display image
-            cv2.imshow("Test", image)
-            # cv2.imwrite(image_path, im)
+            cv2.imshow("Image", image)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
@@ -182,7 +182,7 @@ class PerspectiveCalibration:
 
     def from_2d_to_3d(self, image_coordinates):
         # load camera calibration
-        cam_mtx, dist, roi, newcam_mtx, inverse_newcam_mtx = self.load_parameters(display=True)
+        cam_mtx, dist, roi, newcam_mtx, inverse_newcam_mtx = self.load_parameters()
         R_mtx = np.load(self.savedir + 'R_mtx.npy')
         inverse_R_mtx = np.linalg.inv(R_mtx)
         s_arr = np.load(self.savedir + 's_arr.npy')

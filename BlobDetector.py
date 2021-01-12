@@ -1,4 +1,6 @@
 # Python code for Blob Detection
+import os
+
 import imutils
 import numpy as np
 import cv2
@@ -14,7 +16,8 @@ class BlobDetector:
         self.pc = PerspectiveCalibration()
         self.pc.setup_camera()
         # Get image
-        self.image_path = 'blob_images/img1610361325.5.png'
+        current_path = os.path.dirname(os.path.realpath(__file__))
+        self.image_path = os.path.join(current_path, 'blob_images/img1610361325.5.png')
         self.image = cv2.imread(self.image_path)
         self.quadrants = self.get_quadrants(x_length, y_length)
 
@@ -46,29 +49,29 @@ class BlobDetector:
         middle_up_left = (-x_length / 2, -y_length / 6, 0)
         middle_up_right = (x_length / 2, y_length / 6, 0)
 
-        upper_left_corner_pixels = self.pc.from_3d_to_2d(self.image, upper_left_corner, draw=True)[0][0]
-        upper_right_corner_pixels = self.pc.from_3d_to_2d(self.image, upper_right_corner, draw=True)[0][0]
-        lower_left_corner_pixels = self.pc.from_3d_to_2d(self.image, lower_left_corner, draw=True)[0][0]
-        lower_right_corner_pixels = self.pc.from_3d_to_2d(self.image, lower_right_corner, draw=True)[0][0]
+        upper_left_corner_pixels = self.pc.from_3d_to_2d(self.image, upper_left_corner)[0][0]
+        upper_right_corner_pixels = self.pc.from_3d_to_2d(self.image, upper_right_corner)[0][0]
+        lower_left_corner_pixels = self.pc.from_3d_to_2d(self.image, lower_left_corner)[0][0]
+        lower_right_corner_pixels = self.pc.from_3d_to_2d(self.image, lower_right_corner)[0][0]
 
-        center_pixels = self.pc.from_3d_to_2d(self.image, center, draw=True)[0][0]
-        # middle_right_pixels = from_3d_to_2d(self.image, middle_right, draw=True)[0][0]
-        # middle_left_pixels = from_3d_to_2d(self.image, middle_left, draw=True)[0][0]
-        # middle_down_pixels = from_3d_to_2d(self.image, middle_down, draw=True)[0][0]
-        # middle_up_pixels = from_3d_to_2d(self.image, middle_up, draw=True)[0][0]
+        center_pixels = self.pc.from_3d_to_2d(self.image, center)[0][0]
+        # middle_right_pixels = from_3d_to_2d(self.image, middle_right)[0][0]
+        # middle_left_pixels = from_3d_to_2d(self.image, middle_left)[0][0]
+        # middle_down_pixels = from_3d_to_2d(self.image, middle_down)[0][0]
+        # middle_up_pixels = from_3d_to_2d(self.image, middle_up)[0][0]
 
-        middle_right_up_pixels = self.pc.from_3d_to_2d(self.image, middle_right_up, draw=True)[0][0]
-        middle_right_down_pixels = self.pc.from_3d_to_2d(self.image, middle_right_down, draw=True)[0][0]
-        middle_left_up_pixels = self.pc.from_3d_to_2d(self.image, middle_left_up, draw=True)[0][0]
-        middle_left_down_pixels = self.pc.from_3d_to_2d(self.image, middle_left_down, draw=True)[0][0]
-        middle_down_left_pixels = self.pc.from_3d_to_2d(self.image, middle_down_left, draw=True)[0][0]
-        middle_down_right_pixels = self.pc.from_3d_to_2d(self.image, middle_down_right, draw=True)[0][0]
-        middle_up_left_pixels = self.pc.from_3d_to_2d(self.image, middle_up_left, draw=True)[0][0]
-        middle_up_right_pixels = self.pc.from_3d_to_2d(self.image, middle_up_right, draw=True)[0][0]
-        center_down_left_pixels = self.pc.from_3d_to_2d(self.image, center_left_down, draw=True)[0][0]
-        center_down_right_pixels = self.pc.from_3d_to_2d(self.image, center_right_down, draw=True)[0][0]
-        center_up_left_pixels = self.pc.from_3d_to_2d(self.image, center_left_up, draw=True)[0][0]
-        center_up_right_pixels = self.pc.from_3d_to_2d(self.image, center_right_up, draw=True)[0][0]
+        middle_right_up_pixels = self.pc.from_3d_to_2d(self.image, middle_right_up)[0][0]
+        middle_right_down_pixels = self.pc.from_3d_to_2d(self.image, middle_right_down)[0][0]
+        middle_left_up_pixels = self.pc.from_3d_to_2d(self.image, middle_left_up)[0][0]
+        middle_left_down_pixels = self.pc.from_3d_to_2d(self.image, middle_left_down)[0][0]
+        middle_down_left_pixels = self.pc.from_3d_to_2d(self.image, middle_down_left)[0][0]
+        middle_down_right_pixels = self.pc.from_3d_to_2d(self.image, middle_down_right)[0][0]
+        middle_up_left_pixels = self.pc.from_3d_to_2d(self.image, middle_up_left)[0][0]
+        middle_up_right_pixels = self.pc.from_3d_to_2d(self.image, middle_up_right)[0][0]
+        center_down_left_pixels = self.pc.from_3d_to_2d(self.image, center_left_down)[0][0]
+        center_down_right_pixels = self.pc.from_3d_to_2d(self.image, center_right_down)[0][0]
+        center_up_left_pixels = self.pc.from_3d_to_2d(self.image, center_left_up)[0][0]
+        center_up_right_pixels = self.pc.from_3d_to_2d(self.image, center_right_up)[0][0]
 
         quadrants = [
             [upper_left_corner_pixels, middle_up_left_pixels, center_up_left_pixels, middle_left_up_pixels],
@@ -141,7 +144,8 @@ class BlobDetector:
 
 
 if __name__ == '__main__':
-    image_path = 'blob_images/img1610361325.5.png'
+    current_path = os.path.dirname(os.path.realpath(__file__))
+    image_path = os.path.join(current_path, 'blob_images/img1610361325.5.png')
     image = cv2.imread(image_path)
     blob_detector = BlobDetector(x_length=0.13, y_length=0.19)
     print(blob_detector.find_optimal_quadrant(image))
