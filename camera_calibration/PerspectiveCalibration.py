@@ -6,12 +6,12 @@ import cv2
 
 
 class PerspectiveCalibration:
-    def __init__(self):
+    def __init__(self, draw=True,display = True,uwriteValues = True):
         current_path = os.path.dirname(os.path.realpath(__file__))
         self.savedir = os.path.join(current_path, '../camera_data/')
-        self.display = True
-        self.writeValues = True
-        self.draw = True
+        self.draw = draw
+        self.display = display
+        self.writeValues = uwriteValues
 
     # Get the center of the image cx and cy
     def get_image_center(self):
@@ -158,7 +158,7 @@ class PerspectiveCalibration:
 
         return s_mean, s_std
 
-    def from_3d_to_2d(self, image, world_coordinates):
+    def from_3d_to_2d(self, image, world_coordinates, draw=False):
         # load camera calibration
         dist = np.load(self.savedir + 'dist.npy')
         newcam_mtx = np.load(self.savedir + 'newcam_mtx.npy')
@@ -171,7 +171,7 @@ class PerspectiveCalibration:
                                                     dist)
         print("New_point2D:", new_point2D)
 
-        if self.draw:
+        if draw or self.draw:
             cv2.circle(image, (int(new_point2D[0][0][0]), int(new_point2D[0][0][1])), 5, (255, 0, 0), -1)
             # Display image
             cv2.imshow("Image", image)
