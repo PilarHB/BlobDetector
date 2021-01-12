@@ -14,7 +14,7 @@ class BlobDetector:
         self.pc = PerspectiveCalibration()
         self.pc.setup_camera()
         # Get image
-        self.image_path = '../blob_images/img1610361325.5.png'
+        self.image_path = 'blob_images/img1610361325.5.png'
         self.image = cv2.imread(self.image_path)
         self.quadrants = self.get_quadrants(x_length, y_length)
 
@@ -141,7 +141,7 @@ class BlobDetector:
 
 
 if __name__ == '__main__':
-    image_path = '../blob_images/img1610361325.5.png'
+    image_path = 'blob_images/img1610361325.5.png'
     image = cv2.imread(image_path)
     blob_detector = BlobDetector(x_length=0.13, y_length=0.19)
     print(blob_detector.find_optimal_quadrant(image))
