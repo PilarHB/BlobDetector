@@ -2,7 +2,7 @@
 import imutils
 import numpy as np
 import cv2
-from camera_calibration.perspective_calibration import PerspectiveCalibration
+from camera_calibration.PerspectiveCalibration import PerspectiveCalibration
 from matplotlib import pyplot as plt
 from scipy import ndimage as ndi
 from skimage.feature import canny
