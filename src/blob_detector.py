@@ -2,7 +2,7 @@
 import imutils
 import numpy as np
 import cv2
-from camera_calibration.perspective_calibration import from_3d_to_2d, setup_camera
+from camera_calibration.perspective_calibration import PerspectiveCalibration
 from matplotlib import pyplot as plt
 from scipy import ndimage as ndi
 from skimage.feature import canny
@@ -11,7 +11,8 @@ from skimage.feature import canny
 class BlobDetector:
     def __init__(self, x_length, y_length):
         # Setup camera with camera calibration
-        setup_camera()
+        self.pc = PerspectiveCalibration()
+        self.pc.setup_camera()
         # Get image
         self.image_path = '../blob_images/img1610361325.5.png'
         self.image = cv2.imread(self.image_path)
@@ -45,29 +46,29 @@ class BlobDetector:
         middle_up_left = (-x_length / 2, -y_length / 6, 0)
         middle_up_right = (x_length / 2, y_length / 6, 0)
 
-        upper_left_corner_pixels = from_3d_to_2d(self.image, upper_left_corner, draw=True)[0][0]
-        upper_right_corner_pixels = from_3d_to_2d(self.image, upper_right_corner, draw=True)[0][0]
-        lower_left_corner_pixels = from_3d_to_2d(self.image, lower_left_corner, draw=True)[0][0]
-        lower_right_corner_pixels = from_3d_to_2d(self.image, lower_right_corner, draw=True)[0][0]
+        upper_left_corner_pixels = self.pc.from_3d_to_2d(self.image, upper_left_corner, draw=True)[0][0]
+        upper_right_corner_pixels = self.pc.from_3d_to_2d(self.image, upper_right_corner, draw=True)[0][0]
+        lower_left_corner_pixels = self.pc.from_3d_to_2d(self.image, lower_left_corner, draw=True)[0][0]
+        lower_right_corner_pixels = self.pc.from_3d_to_2d(self.image, lower_right_corner, draw=True)[0][0]
 
-        center_pixels = from_3d_to_2d(self.image, center, draw=True)[0][0]
+        center_pixels = self.pc.from_3d_to_2d(self.image, center, draw=True)[0][0]
         # middle_right_pixels = from_3d_to_2d(self.image, middle_right, draw=True)[0][0]
         # middle_left_pixels = from_3d_to_2d(self.image, middle_left, draw=True)[0][0]
         # middle_down_pixels = from_3d_to_2d(self.image, middle_down, draw=True)[0][0]
         # middle_up_pixels = from_3d_to_2d(self.image, middle_up, draw=True)[0][0]
 
-        middle_right_up_pixels = from_3d_to_2d(self.image, middle_right_up, draw=True)[0][0]
-        middle_right_down_pixels = from_3d_to_2d(self.image, middle_right_down, draw=True)[0][0]
-        middle_left_up_pixels = from_3d_to_2d(self.image, middle_left_up, draw=True)[0][0]
-        middle_left_down_pixels = from_3d_to_2d(self.image, middle_left_down, draw=True)[0][0]
-        middle_down_left_pixels = from_3d_to_2d(self.image, middle_down_left, draw=True)[0][0]
-        middle_down_right_pixels = from_3d_to_2d(self.image, middle_down_right, draw=True)[0][0]
-        middle_up_left_pixels = from_3d_to_2d(self.image, middle_up_left, draw=True)[0][0]
-        middle_up_right_pixels = from_3d_to_2d(self.image, middle_up_right, draw=True)[0][0]
-        center_down_left_pixels = from_3d_to_2d(self.image, center_left_down, draw=True)[0][0]
-        center_down_right_pixels = from_3d_to_2d(self.image, center_right_down, draw=True)[0][0]
-        center_up_left_pixels = from_3d_to_2d(self.image, center_left_up, draw=True)[0][0]
-        center_up_right_pixels = from_3d_to_2d(self.image, center_right_up, draw=True)[0][0]
+        middle_right_up_pixels = self.pc.from_3d_to_2d(self.image, middle_right_up, draw=True)[0][0]
+        middle_right_down_pixels = self.pc.from_3d_to_2d(self.image, middle_right_down, draw=True)[0][0]
+        middle_left_up_pixels = self.pc.from_3d_to_2d(self.image, middle_left_up, draw=True)[0][0]
+        middle_left_down_pixels = self.pc.from_3d_to_2d(self.image, middle_left_down, draw=True)[0][0]
+        middle_down_left_pixels = self.pc.from_3d_to_2d(self.image, middle_down_left, draw=True)[0][0]
+        middle_down_right_pixels = self.pc.from_3d_to_2d(self.image, middle_down_right, draw=True)[0][0]
+        middle_up_left_pixels = self.pc.from_3d_to_2d(self.image, middle_up_left, draw=True)[0][0]
+        middle_up_right_pixels = self.pc.from_3d_to_2d(self.image, middle_up_right, draw=True)[0][0]
+        center_down_left_pixels = self.pc.from_3d_to_2d(self.image, center_left_down, draw=True)[0][0]
+        center_down_right_pixels = self.pc.from_3d_to_2d(self.image, center_right_down, draw=True)[0][0]
+        center_up_left_pixels = self.pc.from_3d_to_2d(self.image, center_left_up, draw=True)[0][0]
+        center_up_right_pixels = self.pc.from_3d_to_2d(self.image, center_right_up, draw=True)[0][0]
 
         quadrants = [
             [upper_left_corner_pixels, middle_up_left_pixels, center_up_left_pixels, middle_left_up_pixels],
