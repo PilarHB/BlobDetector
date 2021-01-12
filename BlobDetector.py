@@ -4,17 +4,14 @@ import os
 import imutils
 import numpy as np
 import cv2
-from camera_calibration.PerspectiveCalibration import PerspectiveCalibration
-from matplotlib import pyplot as plt
-from scipy import ndimage as ndi
-from skimage.feature import canny
-from math import floor
 from math import ceil
+import matplotlib.pyplot as plt
+from camera_calibration.PerspectiveCalibration import PerspectiveCalibration
 
 
 class BlobDetector:
     def __init__(self, x_length, y_length, columns=3, rows=3, draw=False):
-        self.draw = False
+        self.draw = draw
         # Setup camera with camera calibration
         self.pc = PerspectiveCalibration(draw=self.draw)
         self.pc.setup_camera()
@@ -22,6 +19,10 @@ class BlobDetector:
         current_path = os.path.dirname(os.path.realpath(__file__))
         self.image_path = os.path.join(current_path, 'blob_images/img1610361325.5.png')
         self.image = cv2.imread(self.image_path)
+        self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
+        plt.imshow(self.image)
+        plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
+        plt.show()
         self.quadrants, self.quadrants_center = self.get_quadrants(x_length, y_length, columns, rows)
 
     def get_quadrants(self, x_length, y_length, columns, rows):
@@ -51,7 +52,7 @@ class BlobDetector:
         quadrants = []
         quadrants_center = []
         for i in range(n_quadrants):
-            row = ceil((i + 1) / (columns)) - 1
+            row = int(ceil((i + 1) / (columns)) - 1)
 
             # Creation of the quadrants
             quadrants.append([
@@ -67,7 +68,7 @@ class BlobDetector:
                 np.subtract(points[i + row], points[i + row + columns + 2]) / 2
             ))
 
-            return quadrants, quadrants_center
+        return quadrants, quadrants_center
 
     def check_pixel_quadrant(self, cx, cy):
         def limit(a1, a2, a, b1, b2):
@@ -111,9 +112,13 @@ class BlobDetector:
 
         # display the image
         if draw or self.draw:
-            cv2.imshow("Image", image)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            # cv2.imshow("Image", image)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            plt.imshow(image)
+            plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
+            plt.show()
         return index_quadrant.index(max(index_quadrant))
 
     @staticmethod

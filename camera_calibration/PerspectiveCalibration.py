@@ -3,6 +3,7 @@ import os
 
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
 
 
 class PerspectiveCalibration:
@@ -174,9 +175,13 @@ class PerspectiveCalibration:
         if draw or self.draw:
             cv2.circle(image, (int(new_point2D[0][0][0]), int(new_point2D[0][0][1])), 5, (255, 0, 0), -1)
             # Display image
-            cv2.imshow("Image", image)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            # cv2.imshow("Image", image)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            plt.imshow(image)
+            plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
+            plt.show()
 
         return new_point2D
 
