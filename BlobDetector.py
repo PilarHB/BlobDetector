@@ -19,10 +19,7 @@ class BlobDetector:
         current_path = os.path.dirname(os.path.realpath(__file__))
         self.image_path = os.path.join(current_path, 'blob_images/img1610361325.5.png')
         self.image = cv2.imread(self.image_path)
-        self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
-        plt.imshow(self.image)
-        plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
-        plt.show()
+        # self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
         self.quadrants, self.quadrants_center = self.get_quadrants(x_length, y_length, columns, rows)
 
     def get_quadrants(self, x_length, y_length, columns, rows):
@@ -91,6 +88,7 @@ class BlobDetector:
         return contours
 
     def find_optimal_quadrant(self, image, draw=False):
+        image = np.asarray(image)
         thresh = self._image_preprocessing(image)
         contours = self._find_contours(thresh)
         # initialize quadrant count

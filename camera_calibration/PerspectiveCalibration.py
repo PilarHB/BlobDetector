@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 
 class PerspectiveCalibration:
-    def __init__(self, draw=True,display = True,uwriteValues = True):
+    def __init__(self, draw=True,display = False,uwriteValues = True):
         current_path = os.path.dirname(os.path.realpath(__file__))
         self.savedir = os.path.join(current_path, '../camera_data/')
         self.draw = draw
@@ -90,7 +90,6 @@ class PerspectiveCalibration:
             wZ = np.sqrt(np.square(wd) - np.square(d1))
             world_points[i, 2] = wZ
 
-        print(world_points)
         return world_points
 
     # Lets the check the accuracy here :
@@ -170,8 +169,6 @@ class PerspectiveCalibration:
         world_coordinates = np.array([world_coordinates])
         (new_point2D, jacobian) = cv2.projectPoints(world_coordinates, rotation_vector, translation_vector, newcam_mtx,
                                                     dist)
-        print("New_point2D:", new_point2D)
-
         if draw or self.draw:
             cv2.circle(image, (int(new_point2D[0][0][0]), int(new_point2D[0][0][1])), 5, (255, 0, 0), -1)
             # Display image
@@ -248,13 +245,9 @@ class PerspectiveCalibration:
         # Get rotation and translation_vector from the parameters of the camera, given a set of 2D and 3D points
         (success, rotation_vector, translation_vector) = cv2.solvePnP(world_points, image_points, newcam_mtx, dist,
                                                                       flags=cv2.SOLVEPNP_ITERATIVE)
-        if success:
-            print("Success:", success)
-            print("Rotation Vector:\n {0}".format(rotation_vector))
-            print("Translation Vector:\n {0}".format(translation_vector))
 
-            if self.writeValues:
-                self.save_parameters(rotation_vector, translation_vector, newcam_mtx)
+        if self.writeValues:
+            self.save_parameters(rotation_vector, translation_vector, newcam_mtx)
 
         # # Check the accuracy now
         # mean, std = calculate_accuracy(world_points, image_points, total_points_used)
