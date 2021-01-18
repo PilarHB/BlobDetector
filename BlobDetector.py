@@ -132,9 +132,9 @@ class BlobDetector:
 
 if __name__ == '__main__':
     current_path = os.path.dirname(os.path.realpath(__file__))
-    image_path = os.path.join(current_path, 'blob_images/img1610361325.5.png')
+    image_path = os.path.join(current_path, 'blob_images/img1610977646.87.png')
     image = cv2.imread(image_path)
-    blob_detector = BlobDetector(x_length=0.13, y_length=0.19, columns=4, rows=4)
+    blob_detector = BlobDetector(x_length=0.175, y_length=0.225, columns=4, rows=4)
     optimal_quadrant = blob_detector.find_optimal_quadrant(image)
     optimal_point = blob_detector.quadrants_center[optimal_quadrant]
     blob_detector.pc.from_3d_to_2d(image, optimal_point, draw=True)
