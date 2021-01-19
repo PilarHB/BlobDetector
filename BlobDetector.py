@@ -4,87 +4,68 @@ import os
 import imutils
 import numpy as np
 import cv2
+from math import ceil
+import matplotlib.pyplot as plt
 from camera_calibration.PerspectiveCalibration import PerspectiveCalibration
-from matplotlib import pyplot as plt
-from scipy import ndimage as ndi
-from skimage.feature import canny
 
 
 class BlobDetector:
-    def __init__(self, x_length, y_length):
+    def __init__(self, x_length, y_length, columns=3, rows=3, draw=False):
+        self.draw = draw
         # Setup camera with camera calibration
-        self.pc = PerspectiveCalibration()
+        self.pc = PerspectiveCalibration(draw=self.draw)
         self.pc.setup_camera()
         # Get image
         current_path = os.path.dirname(os.path.realpath(__file__))
         self.image_path = os.path.join(current_path, 'blob_images/img1610361325.5.png')
         self.image = cv2.imread(self.image_path)
-        self.quadrants = self.get_quadrants(x_length, y_length)
+        # self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
+        self.quadrants, self.quadrants_center = self.get_quadrants(x_length, y_length, columns, rows)
 
-    # TODO: Calculate border of our box from real environment to pixels
-    def get_quadrants(self, x_length, y_length):
+    def get_quadrants(self, x_length, y_length, columns, rows):
+        # Conversion from centimeters to logical coordinates length (0.054 is the length of square side)
         x_length = x_length / 0.054
         y_length = y_length / 0.054
 
-        # Corners
-        upper_right_corner = (-x_length / 2, y_length / 2, 0)
-        upper_left_corner = (-x_length / 2, -y_length / 2, 0)
-        lower_right_corner = (x_length / 2, y_length / 2, 0)
-        lower_left_corner = (x_length / 2, -y_length / 2, 0)
+        # Size of each quadrant in coordinates
+        quadrant_width = y_length / columns
+        quadrant_height = x_length / rows
 
-        # Center
-        center = (0.0, 0.0, 0.0)
-        center_right_up = (-x_length / 6, y_length / 6, 0)
-        center_right_down = (x_length / 6, y_length / 6, 0)
-        center_left_down = (x_length / 6, -y_length / 6, 0)
-        center_left_up = (-x_length / 6, -y_length / 6, 0)
+        n_quadrants = columns * rows  # number of quadrants
 
-        # Middles
-        middle_right_up = (-x_length / 6, y_length / 2, 0)
-        middle_right_down = (x_length / 6, y_length / 2, 0)
-        middle_left_up = (-x_length / 6, -y_length / 2, 0)
-        middle_left_down = (x_length / 6, -y_length / 2, 0)
-        middle_down_left = (x_length / 2, -y_length / 6, 0)
-        middle_down_right = (x_length / 2, y_length / 6, 0)
-        middle_up_left = (-x_length / 2, -y_length / 6, 0)
-        middle_up_right = (x_length / 2, y_length / 6, 0)
+        # Creation of all the points that forms each quadrant
+        points = [
+            [x*quadrant_height-x_length/2,
+             y*quadrant_width-y_length/2,
+             0]
+            for x in range(rows + 1) for y in range(columns + 1)]
 
-        upper_left_corner_pixels = self.pc.from_3d_to_2d(self.image, upper_left_corner)[0][0]
-        upper_right_corner_pixels = self.pc.from_3d_to_2d(self.image, upper_right_corner)[0][0]
-        lower_left_corner_pixels = self.pc.from_3d_to_2d(self.image, lower_left_corner)[0][0]
-        lower_right_corner_pixels = self.pc.from_3d_to_2d(self.image, lower_right_corner)[0][0]
+        # Conversion of these points from logical coordinates to image pixels
+        point_pixels = []
+        for point in points:
+            point_pixels.append(self.pc.from_3d_to_2d(self.image, point)[0][0])
 
-        center_pixels = self.pc.from_3d_to_2d(self.image, center)[0][0]
-        # middle_right_pixels = from_3d_to_2d(self.image, middle_right)[0][0]
-        # middle_left_pixels = from_3d_to_2d(self.image, middle_left)[0][0]
-        # middle_down_pixels = from_3d_to_2d(self.image, middle_down)[0][0]
-        # middle_up_pixels = from_3d_to_2d(self.image, middle_up)[0][0]
+        # Creation of the quadrants, each quadrant is formed by 4 points
+        quadrants = []
+        quadrants_center = []
+        for i in range(n_quadrants):
+            row = int(ceil((i + 1) / (columns)) - 1)
 
-        middle_right_up_pixels = self.pc.from_3d_to_2d(self.image, middle_right_up)[0][0]
-        middle_right_down_pixels = self.pc.from_3d_to_2d(self.image, middle_right_down)[0][0]
-        middle_left_up_pixels = self.pc.from_3d_to_2d(self.image, middle_left_up)[0][0]
-        middle_left_down_pixels = self.pc.from_3d_to_2d(self.image, middle_left_down)[0][0]
-        middle_down_left_pixels = self.pc.from_3d_to_2d(self.image, middle_down_left)[0][0]
-        middle_down_right_pixels = self.pc.from_3d_to_2d(self.image, middle_down_right)[0][0]
-        middle_up_left_pixels = self.pc.from_3d_to_2d(self.image, middle_up_left)[0][0]
-        middle_up_right_pixels = self.pc.from_3d_to_2d(self.image, middle_up_right)[0][0]
-        center_down_left_pixels = self.pc.from_3d_to_2d(self.image, center_left_down)[0][0]
-        center_down_right_pixels = self.pc.from_3d_to_2d(self.image, center_right_down)[0][0]
-        center_up_left_pixels = self.pc.from_3d_to_2d(self.image, center_left_up)[0][0]
-        center_up_right_pixels = self.pc.from_3d_to_2d(self.image, center_right_up)[0][0]
+            # Creation of the quadrants
+            quadrants.append([
+                point_pixels[i + row],
+                point_pixels[i + row + 1],
+                point_pixels[i + row + columns + 2],
+                point_pixels[i + row + columns + 1]
+            ])
 
-        quadrants = [
-            [upper_left_corner_pixels, middle_up_left_pixels, center_up_left_pixels, middle_left_up_pixels],
-            [middle_up_left_pixels, middle_up_right_pixels, center_up_right_pixels, center_up_left_pixels],
-            [middle_up_right_pixels, upper_right_corner_pixels, middle_right_up_pixels, center_up_right_pixels],
-            [middle_left_up_pixels, center_up_left_pixels, center_down_left_pixels, middle_left_down_pixels],
-            [center_up_left_pixels, center_up_right_pixels, center_down_right_pixels, center_down_left_pixels],
-            [center_up_right_pixels, middle_right_up_pixels, middle_right_down_pixels, center_down_right_pixels],
-            [middle_left_down_pixels, center_down_left_pixels, middle_down_left_pixels, lower_left_corner],
-            [center_down_left_pixels, center_down_right_pixels, middle_down_right_pixels, middle_down_left_pixels],
-            [center_down_right_pixels, middle_right_down_pixels, lower_right_corner_pixels, middle_down_right_pixels]
-        ]
-        return quadrants
+            # Center of the quadrants
+            quadrants_center.append(np.subtract(
+                points[i + row],
+                np.subtract(points[i + row], points[i + row + columns + 2]) / 2
+            ))
+
+        return quadrants, quadrants_center
 
     def check_pixel_quadrant(self, cx, cy):
         def limit(a1, a2, a, b1, b2):
@@ -106,11 +87,12 @@ class BlobDetector:
         contours = imutils.grab_contours(contours)
         return contours
 
-    def find_optimal_quadrant(self, image):
+    def find_optimal_quadrant(self, image, draw=False):
+        image = np.asarray(image)
         thresh = self._image_preprocessing(image)
         contours = self._find_contours(thresh)
         # initialize quadrant count
-        index_quadrant = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        index_quadrant = [0] * len(self.quadrants)
         for c in contours:
             # calculate moments for each contour
             M = cv2.moments(c)
@@ -127,9 +109,14 @@ class BlobDetector:
                 cY = 0
 
         # display the image
-        cv2.imshow("Image", image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        if draw or self.draw:
+            # cv2.imshow("Image", image)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            plt.imshow(image)
+            plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
+            plt.show()
         return index_quadrant.index(max(index_quadrant))
 
     @staticmethod
@@ -147,5 +134,7 @@ if __name__ == '__main__':
     current_path = os.path.dirname(os.path.realpath(__file__))
     image_path = os.path.join(current_path, 'blob_images/img1610361325.5.png')
     image = cv2.imread(image_path)
-    blob_detector = BlobDetector(x_length=0.13, y_length=0.19)
-    print(blob_detector.find_optimal_quadrant(image))
+    blob_detector = BlobDetector(x_length=0.13, y_length=0.19, columns=4, rows=4)
+    optimal_quadrant = blob_detector.find_optimal_quadrant(image)
+    optimal_point = blob_detector.quadrants_center[optimal_quadrant]
+    blob_detector.pc.from_3d_to_2d(image, optimal_point, draw=True)

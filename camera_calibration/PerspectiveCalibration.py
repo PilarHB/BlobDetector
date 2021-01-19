@@ -3,15 +3,16 @@ import os
 
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
 
 
 class PerspectiveCalibration:
-    def __init__(self):
+    def __init__(self, draw=True,display = False,uwriteValues = True):
         current_path = os.path.dirname(os.path.realpath(__file__))
         self.savedir = os.path.join(current_path, '../camera_data/')
-        self.display = True
-        self.writeValues = True
-        self.draw = True
+        self.draw = draw
+        self.display = display
+        self.writeValues = uwriteValues
 
     # Get the center of the image cx and cy
     def get_image_center(self):
@@ -89,7 +90,6 @@ class PerspectiveCalibration:
             wZ = np.sqrt(np.square(wd) - np.square(d1))
             world_points[i, 2] = wZ
 
-        print(world_points)
         return world_points
 
     # Lets the check the accuracy here :
@@ -158,7 +158,7 @@ class PerspectiveCalibration:
 
         return s_mean, s_std
 
-    def from_3d_to_2d(self, image, world_coordinates):
+    def from_3d_to_2d(self, image, world_coordinates, draw=False):
         # load camera calibration
         dist = np.load(self.savedir + 'dist.npy')
         newcam_mtx = np.load(self.savedir + 'newcam_mtx.npy')
@@ -169,14 +169,16 @@ class PerspectiveCalibration:
         world_coordinates = np.array([world_coordinates])
         (new_point2D, jacobian) = cv2.projectPoints(world_coordinates, rotation_vector, translation_vector, newcam_mtx,
                                                     dist)
-        print("New_point2D:", new_point2D)
-
-        if self.draw:
+        if draw or self.draw:
             cv2.circle(image, (int(new_point2D[0][0][0]), int(new_point2D[0][0][1])), 5, (255, 0, 0), -1)
             # Display image
-            cv2.imshow("Image", image)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            # cv2.imshow("Image", image)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            plt.imshow(image)
+            plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
+            plt.show()
 
         return new_point2D
 
@@ -243,13 +245,9 @@ class PerspectiveCalibration:
         # Get rotation and translation_vector from the parameters of the camera, given a set of 2D and 3D points
         (success, rotation_vector, translation_vector) = cv2.solvePnP(world_points, image_points, newcam_mtx, dist,
                                                                       flags=cv2.SOLVEPNP_ITERATIVE)
-        if success:
-            print("Success:", success)
-            print("Rotation Vector:\n {0}".format(rotation_vector))
-            print("Translation Vector:\n {0}".format(translation_vector))
 
-            if self.writeValues:
-                self.save_parameters(rotation_vector, translation_vector, newcam_mtx)
+        if self.writeValues:
+            self.save_parameters(rotation_vector, translation_vector, newcam_mtx)
 
         # # Check the accuracy now
         # mean, std = calculate_accuracy(world_points, image_points, total_points_used)
