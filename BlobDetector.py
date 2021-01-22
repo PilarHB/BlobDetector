@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 from math import ceil
 import matplotlib.pyplot as plt
-from camera_calibration.PerspectiveCalibration import PerspectiveCalibration
+from .camera_calibration.PerspectiveCalibration import PerspectiveCalibration
 
 
 class BlobDetector:
